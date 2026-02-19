@@ -1,0 +1,175 @@
+PROJETO DE BANCO DE DADOS BÁSICO
+
+=================================================================================================
+1- TABELAS 
+
+
+CREATE table clientes
+(id_cliente INTEGER PRIMARY KEY AUTOINCREMENT,
+Nome text NOT NULL ,
+Email text unique not NULL,
+Telefone  text ,
+Data_cadastro date NOT NULL
+ )  ;
+
+
+
+ CREATE TABLE produtos
+ ( id_produto INTEGER PRIMARY KEY AUTOINCREMENT,
+nome text not null,
+preco numeric NOT NULL,
+estoque integer CHECK (estoque >= 0)
+);
+
+
+
+CREATE TABLE pedidos
+(id_pedido INTEGER PRIMARY KEY AUTOINCREMENT,
+data_pedido date not null,
+valor_total text not NULL,
+id_cliente  integer NOT NULL,
+FOREIGN KEY (id_cliente) REFERENCES clientes (id_cliente)
+);
+
+
+
+CREATE TABLE itens_pedido
+(id_item PRIMARY KEY,
+quantidade NOT NULL CHECK (quantidade > 0) ,
+subtotal NUMERIC,
+id_pedido integer,
+id_produto NOT NULL,
+FOREIGN KEY (id_pedido) REFERENCES pedidos (id_pedido),
+FOREIGN KEY (id_produto) REFERENCES produtos (id_produto)
+) ;
+
+
+=================================================================================================
+2- INSERIR DADOS
+
+
+INSERT INTO clientes
+(id_cliente,
+nome,
+email,
+telefone,
+data_cadastro)
+
+ VALUES
+ ( 1,'Joao Silva','Joaosilva@gmail.com', '111111111', '10/08/2010'),
+ ( 2,'Pedro Santos','Pedrosantos@gmail.com', '222222222', '13/08/2010'),
+ ( 3,'Hitalo Oliveira', 'Hitalooliveira@gmail.com','3333333333', '13/08/2010'),
+ ( 4, 'Rafael Almeida', 'Rafaelalmeida@gmail.com', '444444444', '15/08/2010'),
+ ( 5, 'Camila Barbosa', 'Camilabarbosa@gmail.com', '555555555', '17/08/2010'
+ ) ;
+
+
+
+INSERT INTO produtos 
+ ( id_produto,
+  nome,
+  preco,
+  estoque)
+  
+  VALUES 
+(1, 'Teclado Gamer', 200, 3),
+(2, 'Mouse Óptico', 130, 26),
+(3, 'Monitor 24', 500, 18),
+(4, 'Headset', 100, 9),
+(5, 'Cadeira Gamer', 700, 15),
+(6, 'Webcam HD', 70, 29),
+(7, 'Mousepad Grande', 30, 14
+);
+
+
+
+INSERT INTO  pedidos
+( id_pedido,
+ data_pedido,
+ valor_total,
+ id_cliente )
+ 
+VALUES
+(1, '20/09/2010', 330, 2),
+(2, '20/09/2010', 700, 4),
+(3, '20/09/2010', 100, 1),
+(4, '21/10/2010', 600, 5),
+(5, '21/10/2010', 200, 3),
+(6, '21/10/2010', 500, 1
+);
+
+
+
+INSERT INTO itens_pedido
+(id_item,
+ quantidade,
+ subtotal,
+ id_pedido,
+ id_produto)
+ 
+ VALUES
+(1, 1, 200, 1, 1),
+(2, 1, 130, 1, 2),
+
+(3, 1, 700, 2, 5),
+
+(4, 1, 30, 3, 7),
+(5, 1, 70, 3, 6),
+
+(6, 1, 500, 4, 3),
+(7, 1, 100, 4, 4),
+
+(8, 1, 130, 5, 2),
+(9, 1, 70, 5, 6),
+
+(10, 1, 500, 6, 3
+);
+=================================================================================================
+3- CONSULTA DE DADOS
+
+SELECT 
+    clientes.nome,
+    SUM(itens_pedido.subtotal) AS total_gasto
+    
+FROM clientes
+JOIN pedidos ON pedidos.id_cliente = clientes.id_cliente
+JOIN itens_pedido ON itens_pedido.id_pedido = pedidos.id_pedido
+
+GROUP BY clientes.id_cliente
+
+ORDER BY total_gasto DESC
+LIMIT 1
+;
+
+
+
+SELECT 
+    produtos.nome,
+    SUM(itens_pedido.quantidade) AS total_vendido
+    
+FROM produtos
+JOIN itens_pedido ON itens_pedido.id_produto = produtos.id_produto
+
+GROUP BY produtos.id_produto
+
+ORDER BY total_vendido DESC
+LIMIT 1
+;
+
+
+
+SELECT 
+    pedidos.id_pedido,
+    SUM(itens_pedido.subtotal) AS valor_total
+    
+FROM pedidos
+
+JOIN itens_pedido ON itens_pedido.id_pedido = pedidos.id_pedido
+
+GROUP BY pedidos.id_pedido
+ORDER BY valor_total DESC
+;
+
+
+
+
